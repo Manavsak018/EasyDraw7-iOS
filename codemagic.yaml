@@ -9,14 +9,22 @@ workflows:
       xcode: latest
 
     scripts:
-      - name: Check project
+      - name: Find Xcode project
         script: |
-          xcodebuild -list -project EasyDraw7iOS.xcodeproj
+          PROJECT=$(find . -name "EasyDraw7iOS.xcodeproj" -type d -print -quit)
+          if [ -z "$PROJECT" ]; then
+            echo "ERROR: EasyDraw7iOS.xcodeproj not found"
+            find . -maxdepth 4 -type f
+            exit 1
+          fi
+          echo "Found project: $PROJECT"
+          xcodebuild -list -project "$PROJECT"
 
       - name: Build iOS app
         script: |
+          PROJECT=$(find . -name "EasyDraw7iOS.xcodeproj" -type d -print -quit)
           xcodebuild \
-            -project EasyDraw7iOS.xcodeproj \
+            -project "$PROJECT" \
             -scheme EasyDraw7iOS \
             -sdk iphoneos \
             -configuration Debug \
